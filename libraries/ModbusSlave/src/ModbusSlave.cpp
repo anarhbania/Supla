@@ -172,12 +172,33 @@ uint8_t ModbusSlave::Update(void)
 	return alarm;
 }
 
-float ModbusSlave::ConversionToFloat(uint16_t variable0, uint16_t variable1)
+uint16_t ModbusSlave::ConversionToUint16(uint32_t variable, bool bigEndian)
 {
-	uint32_t variableInt = ((variable1 << 16) | variable0);
-	float variableFloat = *(float*)&variableInt;
-	
-	return variableFloat;
+	if(bigEndian)
+	{
+		return (variable >> 16);
+	}
+	else
+	{
+		return variable;
+	}
+}
+
+uint32_t ModbusSlave::ConversionToUint32(uint16_t variable0, uint16_t variable1, bool bigEndian)
+{
+	if(bigEndian)
+	{
+		return ((variable0 << 16) | variable1);
+	}
+	else
+	{
+		return ((variable1 << 16) | variable0);
+	}
+}
+
+float ModbusSlave::ConversionToFloat(uint32_t variable)
+{	
+	return *(float*)&variable;
 }
 
 void ModbusSlave::SendAnswer(uint8_t length)

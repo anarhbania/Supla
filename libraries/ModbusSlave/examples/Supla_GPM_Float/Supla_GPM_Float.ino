@@ -40,6 +40,8 @@ auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
 #define VARIABLE_8         16
 #define VARIABLE_9         18
 
+bool slaveBigEndian = true;
+
 uint16_t slaveTable[SLAVE_ADDRESS_SIZE];
 
 ModbusSlave Slave(&Serial, SLAVE_BAUD, SLAVE_ID, SLAVE_ADDRESS_START, slaveTable, SLAVE_ADDRESS_SIZE, SLAVE_TIMEOUT);
@@ -85,16 +87,16 @@ void loop()
     {
       lastTime = millis();
 
-      suplaGpm0->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_0 + 1], slaveTable[VARIABLE_0]));
-      suplaGpm1->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_1 + 1], slaveTable[VARIABLE_1]));
-      suplaGpm2->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_2 + 1], slaveTable[VARIABLE_2]));
-      suplaGpm3->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_3 + 1], slaveTable[VARIABLE_3]));
-      suplaGpm4->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_4 + 1], slaveTable[VARIABLE_4]));
-      suplaGpm5->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_5 + 1], slaveTable[VARIABLE_5]));
-      suplaGpm6->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_6 + 1], slaveTable[VARIABLE_6]));
-      suplaGpm7->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_7 + 1], slaveTable[VARIABLE_7]));
-      suplaGpm8->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_8 + 1], slaveTable[VARIABLE_8]));
-      suplaGpm9->setValue(Slave.ConversionToFloat(slaveTable[VARIABLE_9 + 1], slaveTable[VARIABLE_9]));
+      suplaGpm0->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_0], slaveTable[VARIABLE_0 + 1], slaveBigEndian)));
+      suplaGpm1->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_1], slaveTable[VARIABLE_1 + 1], slaveBigEndian)));
+      suplaGpm2->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_2], slaveTable[VARIABLE_2 + 1], slaveBigEndian)));
+      suplaGpm3->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_3], slaveTable[VARIABLE_3 + 1], slaveBigEndian)));
+      suplaGpm4->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_4], slaveTable[VARIABLE_4 + 1], slaveBigEndian)));
+      suplaGpm5->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_5], slaveTable[VARIABLE_5 + 1], slaveBigEndian)));
+      suplaGpm6->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_6], slaveTable[VARIABLE_6 + 1], slaveBigEndian)));
+      suplaGpm7->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_7], slaveTable[VARIABLE_7 + 1], slaveBigEndian)));
+      suplaGpm8->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_8], slaveTable[VARIABLE_8 + 1], slaveBigEndian)));
+      suplaGpm9->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_9], slaveTable[VARIABLE_9 + 1], slaveBigEndian)));
     }
   }
 }

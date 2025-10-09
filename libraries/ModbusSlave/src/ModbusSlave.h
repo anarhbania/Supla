@@ -24,7 +24,10 @@ class ModbusSlave
 	ModbusSlave(HardwareSerial *port, uint32_t baud, uint8_t slaveID, uint16_t registersAddress, uint16_t *registers, uint16_t registersSize, uint64_t timeout);
 	void REDE(uint8_t pinREDE);
 	uint8_t Update(void);
-	float ConversionToFloat(uint16_t variable1, uint16_t variable0);
+	
+	uint16_t ConversionToUint16(uint32_t variable, bool bigEndian);
+	uint32_t ConversionToUint32(uint16_t variable0, uint16_t variable1, bool bigEndian);
+	float ConversionToFloat(uint32_t variable);
 
 	protected:
 

@@ -40,6 +40,8 @@ auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
 #define THERMOMETER         3
 #define GPM                 5
 
+bool slaveBigEndian = true;
+
 uint16_t slaveTable[SLAVE_ADDRESS_SIZE];
 
 ModbusSlave Slave(&Serial, SLAVE_BAUD, SLAVE_ID, SLAVE_ADDRESS_START, slaveTable, SLAVE_ADDRESS_SIZE, SLAVE_TIMEOUT);
@@ -89,7 +91,7 @@ void loop()
       slaveTable[THERMOSTAT_ON] = !suplaThermostat->isThermostatDisabled();
       slaveTable[THERMOSTAT_MANUAL] = suplaThermostat->isManualModeEnabled();
       slaveTable[THERMOSTAT_SETPOINT] = (uint16_t)suplaThermostat->getTemperatureSetpointHeat();
-      suplaThermometer->setValue(Slave.ConversionToFloat(slaveTable[THERMOMETER + 1], slaveTable[THERMOMETER]));
+      suplaThermometer->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[THERMOMETER], slaveTable[THERMOMETER + 1], slaveBigEndian)));
       suplaGpm->setValue(slaveTable[GPM]);
     }
   }
