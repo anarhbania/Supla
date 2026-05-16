@@ -91,7 +91,7 @@ void loop()
       slaveTable[THERMOSTAT_ON] = !suplaThermostat->isThermostatDisabled();
       slaveTable[THERMOSTAT_MANUAL] = suplaThermostat->isManualModeEnabled();
       slaveTable[THERMOSTAT_SETPOINT] = (uint16_t)suplaThermostat->getTemperatureSetpointHeat();
-      suplaThermometer->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[THERMOMETER], slaveTable[THERMOMETER + 1], slaveBigEndian)));
+      suplaThermometer->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[THERMOMETER], slaveTable[THERMOMETER + 1], slaveBigEndian)));
       suplaGpm->setValue(slaveTable[GPM]);
     }
   }

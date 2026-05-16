@@ -17,6 +17,8 @@
 #define PINOUT_LED   13
 #define PINOUT_BUTTON 0
 
+#define PINOUT_REDE   3
+
 Supla::Device::StatusLed statusLed(PINOUT_LED, true);
 Supla::ESPWifi wifi;
 Supla::EspWebServer suplaServer;
@@ -29,7 +31,6 @@ auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
 #define SLAVE_ADDRESS_START 0
 #define SLAVE_ADDRESS_SIZE  5
 #define SLAVE_TIMEOUT    5000
-#define PINOUT_REDE         3
 
 #define HOUR                0
 #define MINUTES             1
@@ -52,12 +53,12 @@ void setup()
   new Supla::Clock;
   new Supla::Html::TimeParameters(&SuplaDevice);
 
-  Slave.REDE(PINOUT_REDE);
-
   SuplaDevice.setSuplaCACert(suplaCACert);
   SuplaDevice.setSupla3rdPartyCACert(supla3rdCACert);
 
   SuplaDevice.begin();
+  
+  Slave.setREDE(PINOUT_REDE);
 }
 
 void loop()

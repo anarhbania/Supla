@@ -87,16 +87,16 @@ void loop()
     {
       lastTime = millis();
 
-      suplaGpm0->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_0], slaveTable[VARIABLE_0 + 1], slaveBigEndian)));
-      suplaGpm1->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_1], slaveTable[VARIABLE_1 + 1], slaveBigEndian)));
-      suplaGpm2->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_2], slaveTable[VARIABLE_2 + 1], slaveBigEndian)));
-      suplaGpm3->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_3], slaveTable[VARIABLE_3 + 1], slaveBigEndian)));
-      suplaGpm4->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_4], slaveTable[VARIABLE_4 + 1], slaveBigEndian)));
-      suplaGpm5->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_5], slaveTable[VARIABLE_5 + 1], slaveBigEndian)));
-      suplaGpm6->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_6], slaveTable[VARIABLE_6 + 1], slaveBigEndian)));
-      suplaGpm7->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_7], slaveTable[VARIABLE_7 + 1], slaveBigEndian)));
-      suplaGpm8->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_8], slaveTable[VARIABLE_8 + 1], slaveBigEndian)));
-      suplaGpm9->setValue(Slave.ConversionToFloat(Slave.ConversionToUint32(slaveTable[VARIABLE_9], slaveTable[VARIABLE_9 + 1], slaveBigEndian)));
+      suplaGpm0->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_0], slaveTable[VARIABLE_0 + 1], slaveBigEndian)));
+      suplaGpm1->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_1], slaveTable[VARIABLE_1 + 1], slaveBigEndian)));
+      suplaGpm2->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_2], slaveTable[VARIABLE_2 + 1], slaveBigEndian)));
+      suplaGpm3->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_3], slaveTable[VARIABLE_3 + 1], slaveBigEndian)));
+      suplaGpm4->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_4], slaveTable[VARIABLE_4 + 1], slaveBigEndian)));
+      suplaGpm5->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_5], slaveTable[VARIABLE_5 + 1], slaveBigEndian)));
+      suplaGpm6->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_6], slaveTable[VARIABLE_6 + 1], slaveBigEndian)));
+      suplaGpm7->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_7], slaveTable[VARIABLE_7 + 1], slaveBigEndian)));
+      suplaGpm8->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_8], slaveTable[VARIABLE_8 + 1], slaveBigEndian)));
+      suplaGpm9->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[VARIABLE_9], slaveTable[VARIABLE_9 + 1], slaveBigEndian)));
     }
   }
 }
