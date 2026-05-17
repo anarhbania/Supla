@@ -2,17 +2,10 @@
 
 ModbusSlave::ModbusSlave(HardwareSerial *port, uint32_t baud, uint8_t slaveID, uint16_t registersAddress, uint16_t *registers, uint16_t registersSize, uint64_t timeout)
 {
-	#ifdef ESP8266
+	#ifdef ARDUINO_ARCH_ESP8266
 	(*port).begin(baud, MODE);
-	#elif defined ESP32
-	if(*port == Serial)
-	{
-		(*port).begin(baud, MODE);
-	}
-	else if(*port == Serial1)
-	{
-		(*port).begin(baud, MODE, PINOUT_SERIAL1_RX, PINOUT_SERIAL1_TX);
-	}
+	#elif ARDUINO_ARCH_ESP32
+	(*port).begin(baud, MODE, PINOUT_SERIAL1_RX, PINOUT_SERIAL1_TX);
 	#endif
 	
 	this->port = port;
