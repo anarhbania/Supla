@@ -1,6 +1,5 @@
 #include <SuplaDevice.h>
 #include <supla/control/button.h>
-#include <supla/control/relay.h>
 #include <supla/device/status_led.h>
 #include <supla/device/supla_ca_cert.h>
 #include <supla/network/esp_web_server.h>
@@ -11,23 +10,32 @@
 #include <supla/storage/eeprom.h>
 #include <supla/storage/littlefs_config.h>
 
-#define PINOUT_LED    6
-#define PINOUT_BUTTON 9
-#define PINOUT_RELAY  4
+// SETTINGS
+// MCU: ESP32S3
+// USB CDC On Boot: Enabled
+// CPU Frequency: 240 Mhz
+// USB DFU On Boot: Disabled
+// Events Run On: Core 1
+// Flash Mode: QIO (120 Mhz)
+// Flash Size: 4MB
+// Arduino Run On: Core 1
+// Partition Scheme: Huge APP (3MB / 1MB)
+// PSRAM: OPI PSRAM
 
-Supla::Device::StatusLed statusLed(PINOUT_LED, false);
+#define PINOUT_BUTTON 1
+#define PINOUT_LED   15
+
+Supla::Device::StatusLed statusLed(PINOUT_LED, true);
 Supla::Eeprom eeprom;
 Supla::ESPWifi wifi;
 Supla::EspWebServer suplaServer;
 Supla::LittleFsConfig configSupla;
 
 auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
-auto suplaRelay = new Supla::Control::Relay(PINOUT_RELAY);
 
-void setup() 
+void setup()
 {
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
-  suplaButtonCfg->addAction(Supla::TOGGLE, suplaRelay, Supla::ON_CLICK_1);
 
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
