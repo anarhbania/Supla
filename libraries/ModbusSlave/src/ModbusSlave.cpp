@@ -7,14 +7,14 @@ ModbusSlave::ModbusSlave(HardwareSerial *port, uint32_t baud, uint8_t slaveID, u
 	#elif ARDUINO_ARCH_ESP32
 	(*port).begin(baud, MODE, PINOUT_SERIAL1_RX, PINOUT_SERIAL1_TX);
 	#endif
-	
+
 	this->port = port;
 	this->slaveID = slaveID;
 	this->registersAddress = registersAddress;
 	this->registers = registers;
 	this->registersSize = registersSize;
 	this->timeout = timeout;
-	
+
 	if(baud > 19200)
 	{
 		t1_5 = 750; 
@@ -25,24 +25,24 @@ ModbusSlave::ModbusSlave(HardwareSerial *port, uint32_t baud, uint8_t slaveID, u
 		t1_5 = 15000000 / baud;
 		t3_5 = 35000000 / baud;
 	}
-} 
+}
 
 void ModbusSlave::setREDE(uint8_t pinREDE)
 {
 	this->pinREDE = pinREDE;
-		
+
 	pinMode(pinREDE, OUTPUT);
 	digitalWrite(pinREDE, LOW);
-} 
+}
 
 uint8_t ModbusSlave::Update(void)
-{	
+{
 	if((*port).available())
 	{
 		lastTimeout = millis();
-		
+
 		uint8_t frameQuantity = 0;
-	
+
 		while((*port).available())
 		{
 			if(frameQuantity == FRAME_SIZE)
@@ -53,16 +53,16 @@ uint8_t ModbusSlave::Update(void)
 			{
 				frame[frameQuantity++] = (*port).read();
 			}
-		  
+
 			delayMicroseconds(t1_5);
 		}
-	
+
 		if(frameQuantity > 7)
 		{
 			if(frame[0] == slaveID)
 			{
 				uint16_t calculateCRC = ModbusSlave::calculateCRC16(frameQuantity - 2);
-				
+
 				if(calculateCRC == (((frame[frameQuantity - 1] << 8) | frame[frameQuantity - 2])))
 				{
 					uint16_t nextFrame = 0;
@@ -172,7 +172,7 @@ uint8_t ModbusSlave::Update(void)
 	{
 		alarm = ALARM_COMMUNICATION;
 	}
-	
+
 	return alarm;
 }
 
@@ -201,7 +201,7 @@ uint32_t ModbusSlave::conversionToUint32(uint16_t variable0, uint16_t variable1,
 }
 
 float ModbusSlave::conversionToFloat(uint32_t variable)
-{	
+{
 	return *(float*)&variable;
 }
 
@@ -220,7 +220,7 @@ void ModbusSlave::sendAnswer(uint8_t length)
 	(*port).flush();
 
 	delayMicroseconds(t3_5);
-	
+
 	if(pinREDE != -1)
 	{
 		digitalWrite(pinREDE, LOW);

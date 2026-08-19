@@ -26,7 +26,7 @@ class ModbusSlave
 
 	ModbusSlave(HardwareSerial *port, uint32_t baud, uint8_t slaveID, uint16_t registersAddress, uint16_t *registers, uint16_t registersSize, uint64_t timeout);
 	uint8_t Update(void);
-	
+
 	void setREDE(uint8_t pinREDE);
 	uint16_t conversionToUint16(uint32_t variable, bool bigEndian);
 	uint32_t conversionToUint32(uint16_t variable0, uint16_t variable1, bool bigEndian);
@@ -51,7 +51,7 @@ class ModbusSlave
 
 	uint16_t t1_5;
 	uint16_t t3_5;
-	
+
 	uint64_t timeout;
 	uint64_t lastTimeout;
 };
