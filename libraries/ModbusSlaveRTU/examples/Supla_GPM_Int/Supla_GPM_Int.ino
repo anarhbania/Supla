@@ -58,7 +58,7 @@ auto suplaGpm9 = new Supla::Sensor::GeneralPurposeMeasurement();
 void setup() 
 {
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
-	
+
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
   new Supla::Html::ProtocolParameters;

@@ -10,14 +10,30 @@
 #include <supla/storage/littlefs_config.h>
 
 #include <supla/clock/clock.h>
+#include <supla/control/hvac_base.h>
+#include <supla/control/internal_pin_output.h>
 #include <supla/network/html/time_parameters.h>
+#include <supla/sensor/general_purpose_measurement.h>
+#include <supla/sensor/virtual_thermometer.h>
 
 #include <ModbusSlaveRTU.h>
 
-#define PINOUT_LED   13
-#define PINOUT_BUTTON 0
+// SETTINGS
+// MCU: ESP32S3
+// USB CDC On Boot: Enabled
+// CPU Frequency: 240 Mhz
+// USB DFU On Boot: Disabled
+// Events Run On: Core 1
+// Flash Mode: QIO (120 Mhz)
+// Flash Size: 4MB
+// Arduino Run On: Core 1
+// Partition Scheme: Huge APP (3MB / 1MB)
+// PSRAM: OPI PSRAM
 
-#define PINOUT_REDE   3
+#define PINOUT_BUTTON 1
+#define PINOUT_LED   15
+
+#define PINOUT_REDE  21
 
 Supla::Device::StatusLed statusLed(PINOUT_LED, true);
 Supla::ESPWifi wifi;
@@ -29,20 +45,28 @@ auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
 #define SLAVE_BAUD       9600
 #define SLAVE_ID            1
 #define SLAVE_ADDRESS_START 0
-#define SLAVE_ADDRESS_SIZE  5
+#define SLAVE_ADDRESS_SIZE  6
 #define SLAVE_TIMEOUT    5000
 
-#define HOUR                0
-#define MINUTES             1
-#define DAY                 2
-#define MONTH               3
-#define YEAR                4
+#define THERMOSTAT_ON       0
+#define THERMOSTAT_MANUAL   1
+#define THERMOSTAT_SETPOINT 2
+#define THERMOMETER         3
+#define GPM                 5
+
+bool slaveBigEndian = true;
 
 uint16_t slaveTable[SLAVE_ADDRESS_SIZE];
 
 ModbusSlaveRTU Slave(&Serial, SLAVE_BAUD, SLAVE_ID, SLAVE_ADDRESS_START, slaveTable, SLAVE_ADDRESS_SIZE, SLAVE_TIMEOUT);
 
-void setup() 
+auto suplaOutput = new Supla::Control::InternalPinOutput(-1);
+auto suplaThermostat = new Supla::Control::HvacBase(suplaOutput);
+auto suplaThermometer = new Supla::Sensor::VirtualThermometer;
+
+auto suplaGpm = new Supla::Sensor::GeneralPurposeMeasurement();
+
+void setup()
 {
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
 
@@ -53,17 +77,20 @@ void setup()
   new Supla::Clock;
   new Supla::Html::TimeParameters(&SuplaDevice);
 
+  suplaThermostat->getChannel()->setInitialCaption("Thermostat");
+  suplaThermostat->setMainThermometerChannelNo(1);
+
   SuplaDevice.setSuplaCACert(suplaCACert);
   SuplaDevice.setSupla3rdPartyCACert(supla3rdCACert);
 
   SuplaDevice.begin();
-  
+
   Slave.setREDE(PINOUT_REDE);
 }
 
 void loop()
 {
-  SuplaDevice.iterate();
+   SuplaDevice.iterate();
 
   if(SuplaDevice.getCurrentStatus() == STATUS_REGISTERED_AND_READY)
   {
@@ -77,11 +104,11 @@ void loop()
     {
       lastTime = millis();
 
-      slaveTable[HOUR] = Supla::Clock::GetHour();
-      slaveTable[MINUTES] = Supla::Clock::GetMin();
-      slaveTable[DAY] = Supla::Clock::GetDay();
-      slaveTable[MONTH] = Supla::Clock::GetMonth();
-      slaveTable[YEAR] = Supla::Clock::GetYear();
+      slaveTable[THERMOSTAT_ON] = !suplaThermostat->isThermostatDisabled();
+      slaveTable[THERMOSTAT_MANUAL] = suplaThermostat->isManualModeEnabled();
+      slaveTable[THERMOSTAT_SETPOINT] = (uint16_t)suplaThermostat->getTemperatureSetpointHeat();
+      suplaThermometer->setValue(Slave.conversionToFloat(Slave.conversionToUint32(slaveTable[THERMOMETER], slaveTable[THERMOMETER + 1], slaveBigEndian)));
+      suplaGpm->setValue(slaveTable[GPM]);
     }
   }
 }

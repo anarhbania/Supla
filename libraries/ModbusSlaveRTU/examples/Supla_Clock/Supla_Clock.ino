@@ -43,7 +43,7 @@ ModbusSlaveRTU Slave(&Serial, SLAVE_BAUD, SLAVE_ID, SLAVE_ADDRESS_START, slaveTa
 void setup() 
 {
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
-	
+
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
   new Supla::Html::ProtocolParameters;
