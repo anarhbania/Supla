@@ -61,7 +61,7 @@ uint8_t ModbusSlaveRTU::Update(void)
 		{
 			if(frame[0] == slaveID)
 			{
-				uint16_t calculateCRC = ModbusSlave::calculateCRC16(frameQuantity - 2);
+				uint16_t calculateCRC = calculateCRC16(frameQuantity - 2);
 
 				if(calculateCRC == (((frame[frameQuantity - 1] << 8) | frame[frameQuantity - 2])))
 				{
@@ -86,23 +86,23 @@ uint8_t ModbusSlaveRTU::Update(void)
 									nextFrame += 2;
 								}
 
-								calculateCRC = ModbusSlave::calculateCRC16(quantityData + 3);
+								calculateCRC = calculateCRC16(quantityData + 3);
 
 								frame[3 + quantityData] = calculateCRC & 0xFF;
 								frame[4 + quantityData] = calculateCRC >> 8;
 
-								ModbusSlave::sendAnswer(5 + quantityData);
+								sendAnswer(5 + quantityData);
 								
 								alarm = 0;
 							}
 							else
 							{
-								ModbusSlave::sendException(READ_HOLDING_REGISTERS, ILLEGAL_DATA_VALUE);
+								sendException(READ_HOLDING_REGISTERS, ILLEGAL_DATA_VALUE);
 							}
 						}
 						else
 						{
-							ModbusSlave::sendException(READ_HOLDING_REGISTERS, ILLEGAL_DATA_ADDRESS);
+							sendException(READ_HOLDING_REGISTERS, ILLEGAL_DATA_ADDRESS);
 						}
 					}
 					else if(frame[1] == PRESET_SINGLE_REGISTER)
@@ -111,18 +111,18 @@ uint8_t ModbusSlaveRTU::Update(void)
 						{
 							registers[startingAddress - registersAddress] = ((frame[4] << 8) | frame[5]);
 
-							calculateCRC = ModbusSlave::calculateCRC16(6);
+							calculateCRC = calculateCRC16(6);
 
 							frame[6] = calculateCRC & 0xFF;
 							frame[7] = calculateCRC >> 8;
 
-							ModbusSlave::sendAnswer(8);
+							sendAnswer(8);
 							
 							alarm = 0;
 						}
 						else
 						{
-							ModbusSlave::sendException(PRESET_SINGLE_REGISTER, ILLEGAL_DATA_ADDRESS);
+							sendException(PRESET_SINGLE_REGISTER, ILLEGAL_DATA_ADDRESS);
 						}
 					}
 					else if(frame[1] == PRESET_MULTIPLE_REGISTERS)
@@ -140,29 +140,29 @@ uint8_t ModbusSlaveRTU::Update(void)
 										nextFrame += 2;
 									}
 
-									calculateCRC = ModbusSlave::calculateCRC16(6);
+									calculateCRC = calculateCRC16(6);
 
 									frame[6] = calculateCRC & 0xFF;
 									frame[7] = calculateCRC >> 8;
 
-									ModbusSlave::sendAnswer(8);
+									sendAnswer(8);
 									
 									alarm = 0;
 								}
 								else
 								{
-									ModbusSlave::sendException(PRESET_MULTIPLE_REGISTERS, ILLEGAL_DATA_VALUE);
+									sendException(PRESET_MULTIPLE_REGISTERS, ILLEGAL_DATA_VALUE);
 								}
 							}
 							else
 							{
-								ModbusSlave::sendException(PRESET_MULTIPLE_REGISTERS, ILLEGAL_DATA_ADDRESS);
+								sendException(PRESET_MULTIPLE_REGISTERS, ILLEGAL_DATA_ADDRESS);
 							}
 						}
 					}
 					else
 					{
-						ModbusSlave::sendException(frame[1], ILLEGAL_DATA_FUNCTION);
+						sendException(frame[1], ILLEGAL_DATA_FUNCTION);
 					}
 				}
 			}
@@ -233,11 +233,11 @@ void ModbusSlaveRTU::sendException(uint8_t function, uint8_t exception)
 	frame[1] = (0x80 | function);
 	frame[2] = exception;
 
-	uint16_t calculateCRC = ModbusSlaveRTU::calculateCRC16(3);
+	uint16_t calculateCRC = calculateCRC16(3);
 	frame[3] = calculateCRC >> 8;
 	frame[4] = calculateCRC & 0xFF;
 
-	ModbusSlave::sendAnswer(5);
+	sendAnswer(5);
 }
 
 uint16_t ModbusSlaveRTU::calculateCRC16(uint8_t length)
