@@ -49,7 +49,7 @@ void setup()
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
   new Supla::Html::ProtocolParameters;
-  
+
   new Supla::Clock;
   new Supla::Html::TimeParameters(&SuplaDevice);
 
