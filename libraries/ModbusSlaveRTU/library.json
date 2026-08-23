@@ -1,5 +1,5 @@
 {
-  "name": "ModbusSlave",
+  "name": "ModbusSlaveRTU",
   "version": "1.1.5",
   "description": "Modbus Slave RTU",
   "keywords": "Modbus, Slave, RTU",
