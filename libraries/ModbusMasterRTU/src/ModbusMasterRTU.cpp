@@ -29,7 +29,7 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	prepare();
 
 	tx[0] = id;
-	tx[1] = MODBUS_FUNCTION_READ_HOLDING_REGISTERS;
+	tx[1] = MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS;
 
 	tx[2] = (uint8_t)(address >> 8);
 	tx[3] = (uint8_t)(address & 0xFF);
@@ -47,7 +47,7 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	rxQuantityResponse = 5 + 2 * quantity;
 	readResponse();
 
-	if((id == rx[0] && rx[1] == MODBUS_FUNCTION_READ_HOLDING_REGISTERS) && (calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2])))
+	if((id == rx[0] && rx[1] == MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS) && (calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2])))
 	{
 		for(uint16_t i = 0; i < rx[2]; i+=2)
 		{
@@ -55,7 +55,7 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 		}
 	}
 
-	return MODBUS_STATUS_OK;
+	return MODBUS_MASTER_STATUS_OK;
 }
 
 void ModbusMasterRTU::setREDE(uint8_t pinREDE)
