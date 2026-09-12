@@ -7,7 +7,7 @@ ModbusMasterRTU::ModbusMasterRTU(HardwareSerial *port, uint32_t baud)
 	#elif ARDUINO_ARCH_ESP32
 	(*port).begin(baud, MODE, PINOUT_SERIAL1_RX, PINOUT_SERIAL1_TX);
 	#endif
-	
+
 	this->port = port;
 
 	if(baud > 19200)
@@ -47,15 +47,34 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	rxQuantityResponse = 5 + 2 * quantity;
 	readResponse();
 
-	if((id == rx[0] && rx[1] == MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS) && (calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2])))
+	if(rxQuantity)
 	{
-		for(uint16_t i = 0; i < rx[2]; i+=2)
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
 		{
-			data[i] = (uint16_t)(rx[3 + i] << 8) | rx[4 + i];
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS == rx[1])
+				{
+					for(uint16_t i = 0; i < rx[2]; i+=2)
+					{
+						data[i] = (uint16_t)(rx[3 + i] << 8) | rx[4 + i];
+					}
+
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
 		}
 	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
 
-	return MODBUS_MASTER_STATUS_OK;
+	return status;
 }
 
 void ModbusMasterRTU::setREDE(uint8_t pinREDE)
@@ -101,6 +120,7 @@ void ModbusMasterRTU::prepare()
 	{
 		txQuantity = 0;
 		rxQuantity = 0;
+		rxQuantityResponse = 0;
 
 		memset(tx, 0, sizeof(tx));
 		memset(rx, 0, sizeof(rx));

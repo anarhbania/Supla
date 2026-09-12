@@ -66,6 +66,8 @@ class ModbusMasterRTU
 	HardwareSerial *port;
 
 	uint8_t pinREDE = -1;
+	
+	uint8_t status;
 
 	uint8_t tx[FRAME_SIZE] = {};
 	uint8_t rx[FRAME_SIZE] = {};
