@@ -16,7 +16,7 @@
 // CPU Frequency: 240 Mhz
 // USB DFU On Boot: Disabled
 // Events Run On: Core 1
-// Flash Mode: QIO (120 Mhz)
+// Flash Mode: QIO (80 Mhz)
 // Flash Size: 4MB
 // Arduino Run On: Core 1
 // Partition Scheme: Huge APP (3MB / 1MB)
