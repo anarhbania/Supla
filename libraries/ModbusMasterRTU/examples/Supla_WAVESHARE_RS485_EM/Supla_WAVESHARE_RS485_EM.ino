@@ -95,7 +95,7 @@ void loop()
     {
       lastTime = millis();
 
-      if(Master.readHoldingRegisters(MODBUS_MASTER_EM_ID, MODBUS_MASTER_EM_ADDRESS_START, MODBUS_MASTER_EM_ADDRESS_SIZE, masterTable, 0, MODBUS_MASTER_EM_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
+      if(Master.readHoldingRegisters(MODBUS_MASTER_EM_ID, MODBUS_MASTER_EM_ADDRESS_START, MODBUS_MASTER_EM_POWER_REVERSE, masterTable, 0, MODBUS_MASTER_EM_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
       {
         suplaEM->setVoltage(0, 100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L1], masterTable[MODBUS_MASTER_EM_VOLTAGE_L1 + 1], masterBigEndian)));
         suplaEM->setVoltage(1, 100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L2], masterTable[MODBUS_MASTER_EM_VOLTAGE_L2 + 1], masterBigEndian)));
