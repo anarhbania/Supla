@@ -39,10 +39,10 @@ auto suplaButtonCfg = new Supla::Control::Button(PINOUT_BUTTON, true, true);
 
 #define MODBUS_MASTER_EM_ID                 3
 #define MODBUS_MASTER_EM_ADDRESS_START 0x0000
-#define MODBUS_MASTER_EM_ADDRESS_SIZE  0x003C
+#define MODBUS_MASTER_EM_ADDRESS_SIZE  0x0040
 #define MODBUS_MASTER_EM_ANSWER_TIMEOUT   500
 
-enum ModbusSlaveSuplaVariablesEM
+enum ModbusMasterVariablesEM // DTS1946-4P
 {
 	MODBUS_MASTER_EM_VOLTAGE_L1 = 0x00, // voltage [V]
 	MODBUS_MASTER_EM_VOLTAGE_L2 = 0x02, // voltage [V]
