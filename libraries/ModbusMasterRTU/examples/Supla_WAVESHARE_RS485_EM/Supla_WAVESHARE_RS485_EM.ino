@@ -48,8 +48,8 @@ enum ModbusSlaveSuplaVariablesEM
 	MODBUS_MASTER_EM_VOLTAGE_L2 = 0x02, // voltage [V]
 	MODBUS_MASTER_EM_VOLTAGE_L3 = 0x04, // voltage [V]
 	MODBUS_MASTER_EM_VOLTAGE_L1L2 = 0x06, // voltage [V]
-  MODBUS_MASTER_EM_VOLTAGE_L2L3 = 0x08, // voltage [V]
-  MODBUS_MASTER_EM_VOLTAGE_L3L1 = 0x0A, // voltage [V]
+	MODBUS_MASTER_EM_VOLTAGE_L2L3 = 0x08, // voltage [V]
+	MODBUS_MASTER_EM_VOLTAGE_L3L1 = 0x0A, // voltage [V]
 	MODBUS_MASTER_EM_CURRENT_L1 = 0x0C, // current [A]
 	MODBUS_MASTER_EM_CURRENT_L2 = 0x0E, // current [A]
 	MODBUS_MASTER_EM_CURRENT_L3 = 0x10, // current [A]
@@ -71,7 +71,7 @@ auto suplaEM = new Supla::Sensor::ElectricityMeter;
 void setup()
 {
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
-  
+
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
   new Supla::Html::ProtocolParameters;
