@@ -97,25 +97,25 @@ void loop()
 
       if(Master.readHoldingRegisters(MODBUS_MASTER_EM_ID, MODBUS_MASTER_EM_ADDRESS_START, MODBUS_MASTER_EM_POWER_REVERSE, masterTable, 0, MODBUS_MASTER_EM_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
       {
-        suplaEM->setVoltage(0, 100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L1], masterTable[MODBUS_MASTER_EM_VOLTAGE_L1 + 1], masterBigEndian)));
-        suplaEM->setVoltage(1, 100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L2], masterTable[MODBUS_MASTER_EM_VOLTAGE_L2 + 1], masterBigEndian)));
-        suplaEM->setVoltage(2, 100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L3], masterTable[MODBUS_MASTER_EM_VOLTAGE_L3 + 1], masterBigEndian)));
+        suplaEM->setVoltage(0, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L1], masterTable[MODBUS_MASTER_EM_VOLTAGE_L1 + 1], masterBigEndian))));
+        suplaEM->setVoltage(1, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L2], masterTable[MODBUS_MASTER_EM_VOLTAGE_L2 + 1], masterBigEndian))));
+        suplaEM->setVoltage(2, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L3], masterTable[MODBUS_MASTER_EM_VOLTAGE_L3 + 1], masterBigEndian))));
 
-        suplaEM->setCurrent(0, 1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L1], masterTable[MODBUS_MASTER_EM_CURRENT_L1 + 1], masterBigEndian)));
-        suplaEM->setCurrent(1, 1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L2], masterTable[MODBUS_MASTER_EM_CURRENT_L2 + 1], masterBigEndian)));
-        suplaEM->setCurrent(2, 1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L3], masterTable[MODBUS_MASTER_EM_CURRENT_L3 + 1], masterBigEndian)));
+        suplaEM->setCurrent(0, (uint32_t)(1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L1], masterTable[MODBUS_MASTER_EM_CURRENT_L1 + 1], masterBigEndian))));
+        suplaEM->setCurrent(1, (uint32_t)(1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L2], masterTable[MODBUS_MASTER_EM_CURRENT_L2 + 1], masterBigEndian))));
+        suplaEM->setCurrent(2, (uint32_t)(1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L3], masterTable[MODBUS_MASTER_EM_CURRENT_L3 + 1], masterBigEndian))));
 
-        suplaEM->setPowerActive(0, 100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L1], masterTable[MODBUS_MASTER_EM_POWER_L1 + 1], masterBigEndian)));
-        suplaEM->setPowerActive(1, 100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L2], masterTable[MODBUS_MASTER_EM_POWER_L2 + 1], masterBigEndian)));
-        suplaEM->setPowerActive(2, 100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L3], masterTable[MODBUS_MASTER_EM_POWER_L3 + 1], masterBigEndian)));
+        suplaEM->setPowerActive(0, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L1], masterTable[MODBUS_MASTER_EM_POWER_L1 + 1], masterBigEndian))));
+        suplaEM->setPowerActive(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L2], masterTable[MODBUS_MASTER_EM_POWER_L2 + 1], masterBigEndian))));
+        suplaEM->setPowerActive(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L3], masterTable[MODBUS_MASTER_EM_POWER_L3 + 1], masterBigEndian))));
 
-        suplaEM->setFwdActEnergy(0, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)));
-        suplaEM->setFwdActEnergy(1, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)));
-        suplaEM->setFwdActEnergy(2, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)));
+        suplaEM->setFwdActEnergy(0, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+        suplaEM->setFwdActEnergy(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+        suplaEM->setFwdActEnergy(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
 
-        suplaEM->setRvrActEnergy(0, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)));
-        suplaEM->setRvrActEnergy(1, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)));
-        suplaEM->setRvrActEnergy(2, 100000 / 3 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)));
+        suplaEM->setRvrActEnergy(0, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
+        suplaEM->setRvrActEnergy(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
+        suplaEM->setRvrActEnergy(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
       }
     }
   }

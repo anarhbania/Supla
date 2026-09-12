@@ -55,9 +55,9 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 			{
 				if(MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS == rx[1])
 				{
-					for(uint16_t i = 0; i < rx[2] / 2; i+=2)
+					for(uint16_t i = 0; i < rx[2] / 2; i++)
 					{
-						data[i] = (uint16_t)(rx[3 + i] << 8) | rx[4 + i];
+						data[i] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
 					}
 
 					status = MODBUS_MASTER_STATUS_OK;
