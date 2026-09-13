@@ -77,7 +77,7 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	return status;
 }
 
-uint8_t ModbusMasterRTU::writeSingleRegisters(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout)
+uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout)
 {
 	this->timeout = timeout;
 	
