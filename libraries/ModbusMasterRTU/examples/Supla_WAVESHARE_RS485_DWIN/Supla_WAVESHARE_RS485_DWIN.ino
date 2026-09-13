@@ -22,7 +22,8 @@
 enum ModbusMasterVariablesDWIN // HMI
 {
 	MODBUS_MASTER_DWIN_PARAMETER_1 = 0x01,
-	MODBUS_MASTER_DWIN_PARAMETER_2 = 0x02
+	MODBUS_MASTER_DWIN_PARAMETER_2 = 0x02,
+	MODBUS_MASTER_DWIN_PARAMETER_3 = 0x03
 };
 
 bool masterBigEndian = true;
@@ -35,6 +36,10 @@ void setup()
 {
   Serial.begin(115200);
 
+  masterTable[MODBUS_MASTER_DWIN_PARAMETER_1] = 11;
+  masterTable[MODBUS_MASTER_DWIN_PARAMETER_2] = 21;
+  masterTable[MODBUS_MASTER_DWIN_PARAMETER_3] = 31;
+
   Master.setREDE(PINOUT_REDE);
 }
 
@@ -45,27 +50,28 @@ void loop()
   {
     lastTime = millis();
 
-    if(Master.writeSingleRegister(MODBUS_MASTER_DWIN_ID, MODBUS_MASTER_DWIN_ADDRESS_START, masterTable[MODBUS_MASTER_DWIN_PARAMETER_1], MODBUS_MASTER_DWIN_PARAMETER_1, MODBUS_MASTER_DWIN_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
+    if(Master.writeSingleRegister(MODBUS_MASTER_DWIN_ID, MODBUS_MASTER_DWIN_ADDRESS_START + MODBUS_MASTER_DWIN_PARAMETER_1, masterTable[MODBUS_MASTER_DWIN_PARAMETER_1], 0, MODBUS_MASTER_DWIN_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
     {
-      Serial.println("SAVE PARAMETER 1: OK");
+      Serial.println("SingleRegister: OK");
     }
     else
     {
-      Serial.println("SAVE PARAMETER 1: NOK");
+      Serial.println("SingleRegister: NOK");
     }
 
-    delay(500);
+    delay(1000);
 
-    if(Master.writeSingleRegister(MODBUS_MASTER_DWIN_ID, MODBUS_MASTER_DWIN_ADDRESS_START, masterTable[MODBUS_MASTER_DWIN_PARAMETER_2], MODBUS_MASTER_DWIN_PARAMETER_2, MODBUS_MASTER_DWIN_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
+    if(Master.writeMultipleRegisters(MODBUS_MASTER_DWIN_ID, MODBUS_MASTER_DWIN_ADDRESS_START + MODBUS_MASTER_DWIN_PARAMETER_2, MODBUS_MASTER_DWIN_PARAMETER_3 - MODBUS_MASTER_DWIN_PARAMETER_1, masterTable, MODBUS_MASTER_DWIN_PARAMETER_2, MODBUS_MASTER_DWIN_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
     {
-      Serial.println("SAVE PARAMETER 2: OK");
+      Serial.println("MultipleRegisters: OK");
     }
     else
     {
-      Serial.println("SAVE PARAMETER 2: NOK");
+      Serial.println("MultipleRegisters: NOK");
     }
 
     masterTable[MODBUS_MASTER_DWIN_PARAMETER_1]++;
     masterTable[MODBUS_MASTER_DWIN_PARAMETER_2]++;
+    masterTable[MODBUS_MASTER_DWIN_PARAMETER_3]++;
   }
 }

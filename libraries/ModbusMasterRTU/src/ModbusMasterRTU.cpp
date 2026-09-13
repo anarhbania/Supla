@@ -140,6 +140,46 @@ uint8_t ModbusMasterRTU::writeMultipleRegisters(const uint8_t id, const uint16_t
 	tx[3] = (uint8_t)(address & 0xFF);
 	tx[4] = (uint8_t)(quantity >> 8);
 	tx[5] = (uint8_t)(quantity & 0xFF);
+	tx[6] = (uint8_t)(2 * quantity);
+	
+	for(uint16_t i = 0; i < quantity; i++)
+	{
+		tx[7 + 2 * i] = (uint8_t)(data[i + offset] >> 8);
+		tx[8 + 2 * i] = (uint8_t)(data[i + offset] & 0xFF);
+	}
+	
+	uint16_t calculateCRC = calculateCRC16(tx, 7 + 2 * quantity);
+
+	tx[7 + 2 * quantity] = (uint8_t)(calculateCRC & 0xFF);
+	tx[8 + 2 * quantity] = (uint8_t)(calculateCRC >> 8);
+	
+	txQuantity = 9 + 2 * quantity;
+	sendRequest();
+	
+	rxQuantityResponse = 8;
+	readResponse();
+	
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_REGISTERS == rx[1])
+				{
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
 	
 	return status;
 }
