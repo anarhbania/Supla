@@ -185,6 +185,8 @@ void ModbusMasterRTU::prepare()
 {
 	if(millis() - lastMillis > 50)
 	{
+		status = MODBUS_MASTER_STATUS_PREPARE;
+		
 		txQuantity = 0;
 		rxQuantity = 0;
 		rxQuantityResponse = 0;

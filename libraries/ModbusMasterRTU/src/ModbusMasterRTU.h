@@ -69,7 +69,7 @@ class ModbusMasterRTU
 
 	uint8_t pinREDE = -1;
 	
-	uint8_t status;
+	uint8_t status = MODBUS_MASTER_STATUS_PREPARE;
 
 	uint8_t tx[FRAME_SIZE] = {};
 	uint8_t rx[FRAME_SIZE] = {};
