@@ -77,6 +77,73 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	return status;
 }
 
+uint8_t ModbusMasterRTU::writeSingleRegisters(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+	
+	prepare();
+	
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER;
+
+	tx[2] = (uint8_t)((address + offset) >> 8);
+	tx[3] = (uint8_t)((address + offset) & 0xFF);
+	tx[4] = (uint8_t)(data >> 8);
+	tx[5] = (uint8_t)(data & 0xFF);
+	
+	uint16_t calculateCRC = calculateCRC16(tx, 6);
+
+	tx[6] = (uint8_t)(calculateCRC & 0xFF);
+	tx[7] = (uint8_t)(calculateCRC >> 8);
+
+	txQuantity = 8;
+	sendRequest();
+	
+	rxQuantityResponse = 8;
+	readResponse();
+	
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER == rx[1])
+				{
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+	
+	return status;
+}
+
+uint8_t ModbusMasterRTU::writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+	
+	prepare();
+	
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_REGISTERS;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(quantity >> 8);
+	tx[5] = (uint8_t)(quantity & 0xFF);
+	
+	return status;
+}
+
 void ModbusMasterRTU::setREDE(uint8_t pinREDE)
 {
 	this->pinREDE = pinREDE;

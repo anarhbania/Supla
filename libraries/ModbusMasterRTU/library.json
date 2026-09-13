@@ -1,6 +1,6 @@
 {
   "name": "ModbusMasterRTU",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Modbus Master RTU",
   "keywords": "Modbus, Master, RTU",
   "homepage": "https://github.com/anarhbania/Supla/libraries/ModbusMasterRTU",
