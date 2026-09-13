@@ -1,7 +1,6 @@
 #include <SuplaDevice.h>
 #include <supla/control/button.h>
 #include <supla/device/status_led.h>
-#include <supla/device/supla_ca_cert.h>
 #include <supla/network/esp_web_server.h>
 #include <supla/network/esp_wifi.h>
 #include <supla/network/html/device_info.h>
@@ -56,6 +55,7 @@ enum ModbusMasterVariablesEM // DTS1946-4P
 	MODBUS_MASTER_EM_POWER_L1 = 0x12, // power [kWh]
 	MODBUS_MASTER_EM_POWER_L2 = 0x14, // power [kWh]
 	MODBUS_MASTER_EM_POWER_L3 = 0x16, // power [kWh]
+	MODBUS_MASTER_EM_FREQUENCY = 0x32, // frequency [Hz]
 	MODBUS_MASTER_EM_POWER_POSITIVE = 0x34, // energy [kWh]
 	MODBUS_MASTER_EM_POWER_REVERSE = 0x36 // energy [kWh]
 };
@@ -70,15 +70,15 @@ auto suplaEM = new Supla::Sensor::ElectricityMeter;
 
 void setup()
 {
+  Serial.begin(115200);
+
   suplaButtonCfg->configureAsConfigButton(&SuplaDevice);
 
   new Supla::Html::DeviceInfo(&SuplaDevice);
   new Supla::Html::WifiParameters;
   new Supla::Html::ProtocolParameters;
 
-  SuplaDevice.setSuplaCACert(suplaCACert);
-  SuplaDevice.setSupla3rdPartyCACert(supla3rdCACert);
-
+  SuplaDevice.setInitialMode(Supla::InitialMode::StartInCfgMode);
   SuplaDevice.begin();
 
   Master.setREDE(PINOUT_REDE);
@@ -97,9 +97,9 @@ void loop()
 
       if(Master.readHoldingRegisters(MODBUS_MASTER_EM_ID, MODBUS_MASTER_EM_ADDRESS_START, MODBUS_MASTER_EM_POWER_REVERSE, masterTable, 0, MODBUS_MASTER_EM_ANSWER_TIMEOUT) == MODBUS_MASTER_STATUS_OK)
       {
-        suplaEM->setVoltage(0, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L1], masterTable[MODBUS_MASTER_EM_VOLTAGE_L1 + 1], masterBigEndian))));
-        suplaEM->setVoltage(1, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L2], masterTable[MODBUS_MASTER_EM_VOLTAGE_L2 + 1], masterBigEndian))));
-        suplaEM->setVoltage(2, (int16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L3], masterTable[MODBUS_MASTER_EM_VOLTAGE_L3 + 1], masterBigEndian))));
+        suplaEM->setVoltage(0, (uint16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L1], masterTable[MODBUS_MASTER_EM_VOLTAGE_L1 + 1], masterBigEndian))));
+        suplaEM->setVoltage(1, (uint16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L2], masterTable[MODBUS_MASTER_EM_VOLTAGE_L2 + 1], masterBigEndian))));
+        suplaEM->setVoltage(2, (uint16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_VOLTAGE_L3], masterTable[MODBUS_MASTER_EM_VOLTAGE_L3 + 1], masterBigEndian))));
 
         suplaEM->setCurrent(0, (uint32_t)(1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L1], masterTable[MODBUS_MASTER_EM_CURRENT_L1 + 1], masterBigEndian))));
         suplaEM->setCurrent(1, (uint32_t)(1000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_CURRENT_L2], masterTable[MODBUS_MASTER_EM_CURRENT_L2 + 1], masterBigEndian))));
@@ -109,13 +109,15 @@ void loop()
         suplaEM->setPowerActive(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L2], masterTable[MODBUS_MASTER_EM_POWER_L2 + 1], masterBigEndian))));
         suplaEM->setPowerActive(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_L3], masterTable[MODBUS_MASTER_EM_POWER_L3 + 1], masterBigEndian))));
 
-        suplaEM->setFwdActEnergy(0, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
-        suplaEM->setFwdActEnergy(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
-        suplaEM->setFwdActEnergy(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+        suplaEM->setFreq((uint16_t)(100 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_FREQUENCY], masterTable[MODBUS_MASTER_EM_FREQUENCY + 1], masterBigEndian))));
 
-        suplaEM->setRvrActEnergy(0, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
-        suplaEM->setRvrActEnergy(1, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
-        suplaEM->setRvrActEnergy(2, (int64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
+        suplaEM->setFwdActEnergy(0, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+        suplaEM->setFwdActEnergy(1, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+        suplaEM->setFwdActEnergy(2, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_POSITIVE], masterTable[MODBUS_MASTER_EM_POWER_POSITIVE + 1], masterBigEndian)) / 3));
+
+        suplaEM->setRvrActEnergy(0, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
+        suplaEM->setRvrActEnergy(1, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
+        suplaEM->setRvrActEnergy(2, (uint64_t)(100000 * Master.conversionToFloat(Master.conversionToUint32(masterTable[MODBUS_MASTER_EM_POWER_REVERSE], masterTable[MODBUS_MASTER_EM_POWER_REVERSE + 1], masterBigEndian)) / 3));
       }
     }
   }
