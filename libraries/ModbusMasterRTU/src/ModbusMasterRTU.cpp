@@ -1,19 +1,8 @@
 #include "ModbusMasterRTU.h"
 
-ModbusMasterRTU::ModbusMasterRTU(uint32_t baud)
+ModbusMasterRTU::ModbusMasterRTU()
 {
-	this->baud = baud;
-	
-	if(baud > 19200)
-	{
-		t1_5 = 750; 
-		t3_5 = 1750; 
-	}
-	else 
-	{
-		t1_5 = 15000000 / baud;
-		t3_5 = 35000000 / baud;
-	}
+	prepare();
 }
 
 uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout)
@@ -223,7 +212,7 @@ uint8_t ModbusMasterRTU::writeMultipleRegisters(const uint8_t id, const uint16_t
 	return status;
 }
 
-void ModbusMasterRTU::setSerial(HardwareSerial *port, uint8_t pinRX, uint8_t pinTX)
+void ModbusMasterRTU::setSerial(HardwareSerial *port, uint32_t baud)
 {
 	#ifdef ARDUINO_ARCH_ESP8266
 	(*port).begin(baud, MODE);
@@ -232,6 +221,23 @@ void ModbusMasterRTU::setSerial(HardwareSerial *port, uint8_t pinRX, uint8_t pin
 	#endif
 
 	this->port = port;
+	
+	if(baud > 19200)
+	{
+		t1_5 = 750; 
+		t3_5 = 1750; 
+	}
+	else 
+	{
+		t1_5 = 15000000 / baud;
+		t3_5 = 35000000 / baud;
+	}
+}
+
+void ModbusMasterRTU::setRXTX(uint8_t pinRX, uint8_t pinTX)
+{
+	this->pinRX = pinRX;
+	this->pinTX = pinTX;
 }
 
 void ModbusMasterRTU::setREDE(uint8_t pinREDE)

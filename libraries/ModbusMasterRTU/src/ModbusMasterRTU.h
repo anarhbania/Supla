@@ -41,13 +41,14 @@ class ModbusMasterRTU
 {
 	public:
 
-	ModbusMasterRTU(uint32_t baud);
+	ModbusMasterRTU();
 
 	uint8_t readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 
-	void setSerial(HardwareSerial *port, uint8_t pinRX, uint8_t pinTX);
+	void setSerial(HardwareSerial *port, uint32_t baud);
+	void setRXTX(uint8_t pinRX, uint8_t pinTX);
 	void setREDE(uint8_t pinREDE);
 
 	uint16_t conversionToUint16(uint32_t variable, bool bigEndian);
@@ -80,8 +81,6 @@ class ModbusMasterRTU
 
 	uint16_t t1_5;
 	uint16_t t3_5;
-	
-	uint32_t baud;
 
 	uint64_t timeout = 0;
 	uint64_t lastMillis = 0;

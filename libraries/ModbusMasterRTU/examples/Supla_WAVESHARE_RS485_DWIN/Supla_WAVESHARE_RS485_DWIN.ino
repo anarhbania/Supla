@@ -12,8 +12,6 @@
 // Partition Scheme: Huge APP (3MB / 1MB)
 // PSRAM: OPI PSRAM
 
-#define PINOUT_RX    18
-#define PINOUT_TX    17
 #define PINOUT_REDE  21
 
 #define MODBUS_MASTER_DWIN_ID                 1
@@ -32,7 +30,7 @@ bool masterBigEndian = true;
 
 uint16_t masterTable[MODBUS_MASTER_DWIN_ADDRESS_SIZE];
 
-ModbusMasterRTU Master(9600);
+ModbusMasterRTU Master;
 
 void setup()
 {
@@ -42,7 +40,7 @@ void setup()
   masterTable[MODBUS_MASTER_DWIN_PARAMETER_2] = 21;
   masterTable[MODBUS_MASTER_DWIN_PARAMETER_3] = 31;
 
-  Master.setSerial(&Serial1, PINOUT_RX, PINOUT_TX);
+  Master.setSerial(&Serial1, 9600);
   Master.setREDE(PINOUT_REDE);
 }
 
