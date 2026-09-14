@@ -5,9 +5,6 @@
 
 #define MODE SERIAL_8N1 // data bits | (O) odd, (E) even, (N) no parity | stop bits
 
-#define PINOUT_SERIAL1_RX 18
-#define PINOUT_SERIAL1_TX 17
-
 #define FRAME_SIZE  512
 
 enum ModbusMasterError : uint8_t
@@ -44,12 +41,13 @@ class ModbusMasterRTU
 {
 	public:
 
-	ModbusMasterRTU(HardwareSerial *port, uint32_t baud);
+	ModbusMasterRTU(uint32_t baud);
 
 	uint8_t readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 
+	void setSerial(HardwareSerial *port, uint8_t pinRX, uint8_t pinTX);
 	void setREDE(uint8_t pinREDE);
 
 	uint16_t conversionToUint16(uint32_t variable, bool bigEndian);
@@ -67,6 +65,8 @@ class ModbusMasterRTU
 
 	HardwareSerial *port;
 
+	uint8_t pinRX = 18;
+	uint8_t pinTX = 17;
 	uint8_t pinREDE = -1;
 	
 	uint8_t status = MODBUS_MASTER_STATUS_PREPARE;
@@ -80,6 +80,8 @@ class ModbusMasterRTU
 
 	uint16_t t1_5;
 	uint16_t t3_5;
+	
+	uint32_t baud;
 
 	uint64_t timeout = 0;
 	uint64_t lastMillis = 0;

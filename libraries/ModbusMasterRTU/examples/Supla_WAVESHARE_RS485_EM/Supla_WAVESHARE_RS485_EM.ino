@@ -27,6 +27,8 @@
 #define PINOUT_BUTTON 1
 #define PINOUT_LED   15
 
+#define PINOUT_RX    18
+#define PINOUT_TX    17
 #define PINOUT_REDE  21
 
 Supla::Device::StatusLed statusLed(PINOUT_LED, true);
@@ -64,7 +66,7 @@ bool masterBigEndian = true;
 
 uint16_t masterTable[MODBUS_MASTER_EM_ADDRESS_SIZE];
 
-ModbusMasterRTU Master(&Serial1, 9600);
+ModbusMasterRTU Master(9600);
 
 auto suplaEM = new Supla::Sensor::ElectricityMeter;
 
@@ -81,6 +83,7 @@ void setup()
   SuplaDevice.setInitialMode(Supla::InitialMode::StartInCfgMode);
   SuplaDevice.begin();
 
+  Master.setSerial(&Serial1, PINOUT_RX, PINOUT_TX);
   Master.setREDE(PINOUT_REDE);
 }
 

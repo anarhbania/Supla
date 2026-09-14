@@ -1,15 +1,9 @@
 #include "ModbusMasterRTU.h"
 
-ModbusMasterRTU::ModbusMasterRTU(HardwareSerial *port, uint32_t baud)
+ModbusMasterRTU::ModbusMasterRTU(uint32_t baud)
 {
-	#ifdef ARDUINO_ARCH_ESP8266
-	(*port).begin(baud, MODE);
-	#elif ARDUINO_ARCH_ESP32
-	(*port).begin(baud, MODE, PINOUT_SERIAL1_RX, PINOUT_SERIAL1_TX);
-	#endif
-
-	this->port = port;
-
+	this->baud = baud;
+	
 	if(baud > 19200)
 	{
 		t1_5 = 750; 
@@ -62,6 +56,21 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 
 					status = MODBUS_MASTER_STATUS_OK;
 				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
 			}
 		}
 		else
@@ -111,6 +120,21 @@ uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t ad
 				if(MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER == rx[1])
 				{
 					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
 				}
 			}
 		}
@@ -169,6 +193,21 @@ uint8_t ModbusMasterRTU::writeMultipleRegisters(const uint8_t id, const uint16_t
 				{
 					status = MODBUS_MASTER_STATUS_OK;
 				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_REGISTERS) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
 			}
 		}
 		else
@@ -182,6 +221,17 @@ uint8_t ModbusMasterRTU::writeMultipleRegisters(const uint8_t id, const uint16_t
 	}
 	
 	return status;
+}
+
+void ModbusMasterRTU::setSerial(HardwareSerial *port, uint8_t pinRX, uint8_t pinTX)
+{
+	#ifdef ARDUINO_ARCH_ESP8266
+	(*port).begin(baud, MODE);
+	#elif ARDUINO_ARCH_ESP32
+	(*port).begin(baud, MODE, pinRX, pinTX);
+	#endif
+
+	this->port = port;
 }
 
 void ModbusMasterRTU::setREDE(uint8_t pinREDE)
