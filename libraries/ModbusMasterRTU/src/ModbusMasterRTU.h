@@ -9,7 +9,6 @@
 
 enum ModbusMasterError : uint8_t
 {
-	MODBUS_MASTER_ERROR_NONE,
 	MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION = 0x01,
 	MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS = 0x02,
 	MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE = 0x03
@@ -17,8 +16,8 @@ enum ModbusMasterError : uint8_t
 
 enum ModbusMasterFunction : uint8_t
 {
-	MODBUS_MASTER_FUNCTION_NONE,
 	MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS = 0x03,
+	MODBUS_MASTER_FUNCTION_READ_INPUT_REGISTERS = 0x04,
 	MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER = 0x06,
 	MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_REGISTERS = 0x10
 };
@@ -28,7 +27,6 @@ enum ModbusMasterStatus : uint8_t
 	MODBUS_MASTER_STATUS_PREPARE,
 	MODBUS_MASTER_STATUS_REQUEST,
 	MODBUS_MASTER_STATUS_RESPONSE,
-	MODBUS_MASTER_STATUS_SAVE,
 	MODBUS_MASTER_STATUS_OK,
 	MODBUS_MASTER_STATUS_ERROR_TIMEOUT,
 	MODBUS_MASTER_STATUS_ERROR_CRC,
@@ -44,6 +42,7 @@ class ModbusMasterRTU
 	ModbusMasterRTU();
 
 	uint8_t readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
+	uint8_t readInputRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 

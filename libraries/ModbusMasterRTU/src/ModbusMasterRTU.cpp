@@ -75,6 +75,76 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 	return status;
 }
 
+uint8_t ModbusMasterRTU::readInputRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+
+	prepare();
+
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_READ_INPUT_REGISTERS;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(quantity >> 8);
+	tx[5] = (uint8_t)(quantity & 0xFF);
+
+	uint16_t calculateCRC = calculateCRC16(tx, 6);
+
+	tx[6] = (uint8_t)(calculateCRC & 0xFF);
+	tx[7] = (uint8_t)(calculateCRC >> 8);
+
+	txQuantity = 8;
+	sendRequest();
+
+	rxQuantityResponse = 5 + 2 * quantity;
+	readResponse();
+
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_READ_INPUT_REGISTERS == rx[1])
+				{
+					for(uint16_t i = 0; i < rx[2] / 2; i++)
+					{
+						data[i] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
+					}
+
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_READ_INPUT_REGISTERS) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+
+	return status;
+}
+
 uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout)
 {
 	this->timeout = timeout;
@@ -279,10 +349,10 @@ float ModbusMasterRTU::conversionToFloat(uint32_t variable)
 
 void ModbusMasterRTU::prepare()
 {
+	status = MODBUS_MASTER_STATUS_PREPARE;
+	
 	if(millis() - lastMillis > 50)
-	{
-		status = MODBUS_MASTER_STATUS_PREPARE;
-		
+	{		
 		txQuantity = 0;
 		rxQuantity = 0;
 		rxQuantityResponse = 0;
@@ -294,6 +364,8 @@ void ModbusMasterRTU::prepare()
 
 void ModbusMasterRTU::sendRequest()
 {
+	status = MODBUS_MASTER_STATUS_REQUEST;
+	
 	if(pinREDE != -1)
 	{
 		digitalWrite(pinREDE, HIGH);
@@ -312,11 +384,13 @@ void ModbusMasterRTU::sendRequest()
 	{
 		digitalWrite(pinREDE, LOW);
 	}
+	
+	lastMillis = millis();
 }
 
 void ModbusMasterRTU::readResponse()
 {
-	lastMillis = millis();
+	status = MODBUS_MASTER_STATUS_REQUEST;
 	
 	while((millis() - lastMillis < timeout) && rxQuantity < rxQuantityResponse)
 	{
@@ -337,6 +411,8 @@ void ModbusMasterRTU::readResponse()
 			}
 		}
 	}
+	
+	lastMillis = millis();
 }
 
 uint16_t ModbusMasterRTU::calculateCRC16(uint8_t *data, uint8_t length)
