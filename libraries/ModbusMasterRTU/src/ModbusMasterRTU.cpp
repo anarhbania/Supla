@@ -40,7 +40,7 @@ uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t a
 				{
 					for(uint16_t i = 0; i < rx[2] / 2; i++)
 					{
-						data[i] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
+						data[i + offset] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
 					}
 
 					status = MODBUS_MASTER_STATUS_OK;
@@ -110,7 +110,7 @@ uint8_t ModbusMasterRTU::readInputRegisters(const uint8_t id, const uint16_t add
 				{
 					for(uint16_t i = 0; i < rx[2] / 2; i++)
 					{
-						data[i] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
+						data[i + offset] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
 					}
 
 					status = MODBUS_MASTER_STATUS_OK;
