@@ -330,6 +330,22 @@ uint16_t ModbusMasterRTU::conversionToUint16(uint32_t variable, bool bigEndian)
 	}
 }
 
+uint16_t ModbusMasterRTU::conversionToUint16(float variable, bool bigEndian)
+{
+	float *v = &variable;
+	
+	uint32_t *value = (uint32_t *)v;
+	
+	if(bigEndian)
+	{
+		return (*value >> 16);
+	}
+	else
+	{
+		return *value;
+	}
+}
+
 uint32_t ModbusMasterRTU::conversionToUint32(uint16_t variable0, uint16_t variable1, bool bigEndian)
 {
 	if(bigEndian)

@@ -51,6 +51,7 @@ class ModbusMasterRTU
 	void setREDE(uint8_t pinREDE);
 
 	uint16_t conversionToUint16(uint32_t variable, bool bigEndian);
+	uint16_t conversionToUint16(float variable, bool bigEndian);
 	uint32_t conversionToUint32(uint16_t variable0, uint16_t variable1, bool bigEndian);
 	float conversionToFloat(uint32_t variable);
 
