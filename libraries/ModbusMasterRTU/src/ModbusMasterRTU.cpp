@@ -145,7 +145,7 @@ uint8_t ModbusMasterRTU::readInputRegisters(const uint8_t id, const uint16_t add
 	return status;
 }
 
-uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout)
+uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout)
 {
 	this->timeout = timeout;
 	
@@ -154,8 +154,8 @@ uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t ad
 	tx[0] = id;
 	tx[1] = MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER;
 
-	tx[2] = (uint8_t)((address + offset) >> 8);
-	tx[3] = (uint8_t)((address + offset) & 0xFF);
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
 	tx[4] = (uint8_t)(data >> 8);
 	tx[5] = (uint8_t)(data & 0xFF);
 	

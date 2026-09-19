@@ -43,7 +43,7 @@ class ModbusMasterRTU
 
 	uint8_t readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t readInputRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
-	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, const uint16_t offset, uint64_t timeout);
+	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout);
 	uint8_t writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 
 	void setSerial(HardwareSerial *port, uint32_t baud);
