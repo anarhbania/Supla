@@ -26,8 +26,6 @@ enum ModbusMasterVariablesDWIN // HMI
 	MODBUS_MASTER_DWIN_PARAMETER_3 = 0x03
 };
 
-bool masterBigEndian = true;
-
 uint16_t masterTable[MODBUS_MASTER_DWIN_ADDRESS_SIZE];
 
 ModbusMasterRTU Master;
