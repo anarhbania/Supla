@@ -5,6 +5,154 @@ ModbusMasterRTU::ModbusMasterRTU()
 	prepare();
 }
 
+uint8_t ModbusMasterRTU::readCoils(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+
+	prepare();
+
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_READ_COILS;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(quantity >> 8);
+	tx[5] = (uint8_t)(quantity & 0xFF);
+
+	uint16_t calculateCRC = calculateCRC16(tx, 6);
+
+	tx[6] = (uint8_t)(calculateCRC & 0xFF);
+	tx[7] = (uint8_t)(calculateCRC >> 8);
+
+	txQuantity = 8;
+	sendRequest();
+
+	rxQuantityResponse = 5 + quantity / 16;
+	if(quantity % 16 > 0)
+	{
+		rxQuantityResponse++;
+	}
+	readResponse();
+
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_READ_COILS == rx[1])
+				{
+					for(uint16_t i = 0; i < rx[2] / 2; i++)
+					{
+						data[i + offset] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
+					}
+
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_READ_COILS) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+
+	return status;
+}
+
+uint8_t ModbusMasterRTU::readDiscreteInputs(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+
+	prepare();
+
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_DISCRETE_INPUTS;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(quantity >> 8);
+	tx[5] = (uint8_t)(quantity & 0xFF);
+
+	uint16_t calculateCRC = calculateCRC16(tx, 6);
+
+	tx[6] = (uint8_t)(calculateCRC & 0xFF);
+	tx[7] = (uint8_t)(calculateCRC >> 8);
+
+	txQuantity = 8;
+	sendRequest();
+
+	rxQuantityResponse = 5 + quantity / 16;
+	if(quantity % 16 > 0)
+	{
+		rxQuantityResponse++;
+	}
+	readResponse();
+
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_DISCRETE_INPUTS == rx[1])
+				{
+					for(uint16_t i = 0; i < rx[2] / 2; i++)
+					{
+						data[i + offset] = (uint16_t)(rx[3 + 2 * i] << 8) | rx[4 + 2 * i];
+					}
+
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_DISCRETE_INPUTS) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+
+	return status;
+}
+
 uint8_t ModbusMasterRTU::readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout)
 {
 	this->timeout = timeout;
@@ -145,6 +293,71 @@ uint8_t ModbusMasterRTU::readInputRegisters(const uint8_t id, const uint16_t add
 	return status;
 }
 
+uint8_t ModbusMasterRTU::writeSingleCoil(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout)
+{
+	this->timeout = timeout;
+	
+	prepare();
+	
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_WRITE_SINGLE_COIL;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(data >> 8);
+	tx[5] = (uint8_t)(data & 0xFF);
+	
+	uint16_t calculateCRC = calculateCRC16(tx, 6);
+
+	tx[6] = (uint8_t)(calculateCRC & 0xFF);
+	tx[7] = (uint8_t)(calculateCRC >> 8);
+
+	txQuantity = 8;
+	sendRequest();
+	
+	rxQuantityResponse = 8;
+	readResponse();
+	
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_WRITE_SINGLE_COIL == rx[1])
+				{
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_WRITE_SINGLE_COIL) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+	
+	return status;
+}
+
 uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout)
 {
 	this->timeout = timeout;
@@ -181,6 +394,78 @@ uint8_t ModbusMasterRTU::writeSingleRegister(const uint8_t id, const uint16_t ad
 					status = MODBUS_MASTER_STATUS_OK;
 				}
 				else if((0x80 | MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER) == rx[1])
+				{
+					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_FUNCTION;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_ADDRESS == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_ADDRESS;
+					}
+					else if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_VALUE == rx[2])
+					{
+						status = MODBUS_MASTER_STATUS_ILLEGAL_DATA_VALUE;
+					}
+				}
+			}
+		}
+		else
+		{
+			status = MODBUS_MASTER_STATUS_ERROR_CRC;
+		}
+	}
+	else
+	{
+		status = MODBUS_MASTER_STATUS_ERROR_TIMEOUT;
+	}
+	
+	return status;
+}
+
+uint8_t ModbusMasterRTU::writeMultipleCoils(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout)
+{
+	this->timeout = timeout;
+	
+	prepare();
+	
+	tx[0] = id;
+	tx[1] = MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_COILS;
+
+	tx[2] = (uint8_t)(address >> 8);
+	tx[3] = (uint8_t)(address & 0xFF);
+	tx[4] = (uint8_t)(quantity >> 8);
+	tx[5] = (uint8_t)(quantity & 0xFF);
+	tx[6] = (uint8_t)(2 * quantity);
+	
+	for(uint16_t i = 0; i < quantity; i++)
+	{
+		tx[7 + 2 * i] = (uint8_t)(data[i + offset] >> 8);
+		tx[8 + 2 * i] = (uint8_t)(data[i + offset] & 0xFF);
+	}
+	
+	uint16_t calculateCRC = calculateCRC16(tx, 7 + 2 * quantity);
+
+	tx[7 + 2 * quantity] = (uint8_t)(calculateCRC & 0xFF);
+	tx[8 + 2 * quantity] = (uint8_t)(calculateCRC >> 8);
+	
+	txQuantity = 9 + 2 * quantity;
+	sendRequest();
+	
+	rxQuantityResponse = 8;
+	readResponse();
+	
+	if(rxQuantity)
+	{
+		if(calculateCRC16(rx, rxQuantity - 2) == (uint16_t)((rx[rxQuantity - 1] << 8) | rx[rxQuantity - 2]))
+		{
+			if(id == rx[0])
+			{
+				if(MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_COILS == rx[1])
+				{
+					status = MODBUS_MASTER_STATUS_OK;
+				}
+				else if((0x80 | MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_COILS) == rx[1])
 				{
 					if(MODBUS_MASTER_ERROR_ILLEGAL_DATA_FUNCTION == rx[2])
 					{

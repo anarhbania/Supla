@@ -16,13 +16,9 @@ enum ModbusMasterError : uint8_t
 
 enum ModbusMasterFunction : uint8_t
 {
-	MODBUS_MASTER_FUNCTION_READ_COILS = 0x01,
-	MODBUS_MASTER_FUNCTION_DISCRETE_INPUTS = 0x02,
 	MODBUS_MASTER_FUNCTION_READ_HOLDING_REGISTERS = 0x03,
 	MODBUS_MASTER_FUNCTION_READ_INPUT_REGISTERS = 0x04,
-	MODBUS_MASTER_FUNCTION_WRITE_SINGLE_COIL = 0x05,
 	MODBUS_MASTER_FUNCTION_WRITE_SINGLE_REGISTER = 0x06,
-	MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_COILS = 0x0F,
 	MODBUS_MASTER_FUNCTION_WRITE_MULTIPLE_REGISTERS = 0x10
 };
 
@@ -45,14 +41,9 @@ class ModbusMasterRTU
 
 	ModbusMasterRTU();
 
-	uint8_t readCoils(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout); 
-	uint8_t readDiscreteInputs(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout); 
 	uint8_t readHoldingRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t readInputRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, uint16_t *data, const uint16_t offset, uint64_t timeout);
-	
-	uint8_t writeSingleCoil(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout);
 	uint8_t writeSingleRegister(const uint8_t id, const uint16_t address, const uint16_t data, uint64_t timeout);
-	uint8_t writeMultipleCoils(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 	uint8_t writeMultipleRegisters(const uint8_t id, const uint16_t address, const uint16_t quantity, const uint16_t *data, const uint16_t offset, uint64_t timeout);
 
 	void setSerial(HardwareSerial *port, uint32_t baud);
